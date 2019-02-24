@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace BirthdayGreetingsKata;
+namespace BirthdayGreetingsKata\Infrastructure\Notification;
 
+use BirthdayGreetingsKata\Domain\BirthdayGreet;
+use BirthdayGreetingsKata\Domain\BirthdayGreetSender;
 use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;

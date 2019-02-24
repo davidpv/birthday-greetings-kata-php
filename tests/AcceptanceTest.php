@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
-namespace BirthdayGreetingsKata;
+namespace Tests\BirthdayGreetingsKata;
 
+use BirthdayGreetingsKata\Domain\BirthdayGreet;
+use BirthdayGreetingsKata\Domain\BirthdayGreetSender;
+use BirthdayGreetingsKata\Domain\BirthdayService;
+use BirthdayGreetingsKata\Domain\Employee;
+use BirthdayGreetingsKata\Domain\XDate;
+use BirthdayGreetingsKata\Infrastructure\Persistence\InMemoryEmployeeRepository;
 use PHPUnit\Framework\TestCase;
 
 class AcceptanceTest extends TestCase
@@ -22,8 +28,7 @@ class AcceptanceTest extends TestCase
         $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
         $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
 
-        $this->birthdayGreetSender = new class implements BirthdayGreetSender
-        {
+        $this->birthdayGreetSender = new class implements BirthdayGreetSender {
             /** @var BirthdayGreet[] */
             private $sentGreets = [];
 

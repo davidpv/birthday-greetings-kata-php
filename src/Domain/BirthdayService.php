@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BirthdayGreetingsKata;
+namespace BirthdayGreetingsKata\Domain;
 
 use Swift_Mailer;
 use Swift_Message;

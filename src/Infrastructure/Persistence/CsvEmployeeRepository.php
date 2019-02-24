@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace BirthdayGreetingsKata;
+namespace BirthdayGreetingsKata\Infrastructure\Persistence;
+
+use BirthdayGreetingsKata\Domain\EmployeeRepository;
+use BirthdayGreetingsKata\Domain\XDate;
 
 final class CsvEmployeeRepository implements EmployeeRepository
 {

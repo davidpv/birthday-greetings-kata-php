@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace BirthdayGreetingsKata;
+namespace BirthdayGreetingsKata\Domain;
 
 interface BirthdayGreetSender
 {
