@@ -16,6 +16,10 @@ use League\Tactician\Handler\CommandHandlerMiddleware;
 use League\Tactician\Handler\CommandNameExtractor\ClassNameExtractor;
 use League\Tactician\Handler\Locator\InMemoryLocator;
 use League\Tactician\Handler\MethodNameInflector\HandleInflector;
+use League\Tactician\Logger\Formatter\ClassPropertiesFormatter;
+use League\Tactician\Logger\LoggerMiddleware;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
 class AcceptanceTest extends TestCase
@@ -29,6 +33,11 @@ class AcceptanceTest extends TestCase
      * @var CommandBus
      */
     private $commandBus;
+
+    /**
+     * @var TestHandler
+     */
+    private $handler;
 
     /** @before */
     protected function prepareBirthdayGreetService(): void
@@ -45,7 +54,11 @@ class AcceptanceTest extends TestCase
             )
         );
 
+        $this->handler = new TestHandler();
+        $monolog = new Logger('test', [$this->handler]);
+        
         $this->commandBus = new CommandBus([
+            new LoggerMiddleware(new ClassPropertiesFormatter(), $monolog),
             new CommandHandlerMiddleware(
                 new ClassNameExtractor(),
                 new InMemoryLocator([
@@ -81,6 +94,15 @@ class AcceptanceTest extends TestCase
         $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/01/01'));
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
+    }
+
+    /** @test */
+    public function logsWhenCommandHandlerIsExecutedAndAMatchingBirthdayIsGiven(): void
+    {
+        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
+
+        $records = $this->handler->getRecords();
+        $this->assertGreaterThan(0, count($records));
     }
 
     private function messagesSent(): array
