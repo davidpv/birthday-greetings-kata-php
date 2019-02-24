@@ -31,10 +31,12 @@ class AcceptanceTest extends TestCase
 
         Process::fromShellCommandline('docker stop $(docker ps -a)')->run();
         Process::fromShellCommandline('docker-compose up -d')->run();
+        
+        $employeeRepository = new InMemoryEmployeeRepository();
+        $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
+        $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
 
-        $this->service = new BirthdayService(
-            new CsvEmployeeRepository(self::EMPLOYEE_DATA_FILEPATH)
-        );
+        $this->service = new BirthdayService($employeeRepository);
     }
 
     /** @after */
