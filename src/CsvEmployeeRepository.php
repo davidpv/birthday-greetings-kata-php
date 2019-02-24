@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BirthdayGreetingsKata;
 
-final class CsvEmployeeRepository
+final class CsvEmployeeRepository implements EmployeeRepository
 {
     /**
      * @var string
