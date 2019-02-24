@@ -8,7 +8,7 @@ use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;
 
-final class SwiftmailerBirthdayGreetSender
+final class SwiftmailerBirthdayGreetSender implements BirthdayGreetSender
 {
     /**
      * @var string

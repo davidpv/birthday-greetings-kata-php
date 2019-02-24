@@ -16,11 +16,11 @@ final class BirthdayService
     private $employeeRepository;
 
     /**
-     * @var SwiftmailerBirthdayGreetSender
+     * @var BirthdayGreetSender
      */
     private $birthdayGreetSender;
 
-    public function __construct(EmployeeRepository $employeeRepository, SwiftmailerBirthdayGreetSender $birthdayGreetSender)
+    public function __construct(EmployeeRepository $employeeRepository, BirthdayGreetSender $birthdayGreetSender)
     {
         $this->employeeRepository = $employeeRepository;
         $this->birthdayGreetSender = $birthdayGreetSender;
