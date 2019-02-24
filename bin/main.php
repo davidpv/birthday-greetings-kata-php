@@ -9,7 +9,5 @@ $birthdayService = new BirthdayGreetingsKata\Domain\BirthdayService(
     new BirthdayGreetingsKata\Infrastructure\Notification\SwiftmailerBirthdayGreetSender('127.0.0.1', 1025)
 );
 
-$birthdayService->sendGreetings(
-    new BirthdayGreetingsKata\Domain\XDate('2008/10/08')
-);
-
+$commandHandler = new BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler($birthdayService);
+$commandHandler->handle('2008/10/08');
