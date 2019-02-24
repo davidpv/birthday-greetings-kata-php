@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace BirthdayGreetingsKata;
 
-use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 class AcceptanceTest extends TestCase
 {
-    private const EMPLOYEE_DATA_FILEPATH = __DIR__ . '/resources/employee_data.txt';
-    private const SMTP_HOST = '127.0.0.1';
-    private const SMTP_PORT = 1025;
-
     /**
      * @var BirthdayService
      */
