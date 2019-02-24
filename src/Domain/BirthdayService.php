@@ -26,13 +26,19 @@ final class BirthdayService
         $this->birthdayGreetSender = $birthdayGreetSender;
     }
 
-    public function sendGreetings(XDate $xDate): void
+    public function sendGreetings(XDate $date): void
     {
-        $employees = $this->employeeRepository->byBirthday($xDate);
-        
+        $this->sendBirthdayGreetsTo(
+            $this->employeeRepository->byBirthday($date)
+        );
+    }
+
+    private function sendBirthdayGreetsTo(array $employees): void
+    {
         foreach ($employees as $employee) {
-            $birthdayGreet = new BirthdayGreet($employee);
-            $this->birthdayGreetSender->send($birthdayGreet);
+            $this->birthdayGreetSender->send(
+                new BirthdayGreet($employee)
+            );
         }
     }
 }
