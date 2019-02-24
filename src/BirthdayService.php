@@ -10,10 +10,19 @@ use Swift_SmtpTransport;
 
 final class BirthdayService
 {
+    /**
+     * @var CsvEmployeeRepository
+     */
+    private $employeeRepository;
+
+    public function __construct(CsvEmployeeRepository $employeeRepository)
+    {
+        $this->employeeRepository = $employeeRepository;
+    }
+
     public function sendGreetings($fileName, XDate $xDate, $smtpHost, $smtpPort): void
     {
-        $employeeRepository = new CsvEmployeeRepository($fileName);
-        $employees = $employeeRepository->byBirthday($xDate);
+        $employees = $this->employeeRepository->byBirthday($xDate);
         
         foreach ($employees as $employee) {
             $recipient = $employee->getEmail();

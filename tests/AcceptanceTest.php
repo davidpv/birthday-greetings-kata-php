@@ -31,7 +31,9 @@ class AcceptanceTest extends TestCase
         Process::fromShellCommandline('docker stop $(docker ps -a)')->run();
         Process::fromShellCommandline('docker-compose up -d')->run();
 
-        $this->service = new BirthdayService();
+        $this->service = new BirthdayService(
+            new CsvEmployeeRepository(__DIR__ . '/resources/employee_data.txt')
+        );
     }
 
     /** @after */
