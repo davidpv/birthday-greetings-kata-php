@@ -25,59 +25,7 @@ final class BirthdayService
         $employees = $this->employeeRepository->byBirthday($xDate);
         
         foreach ($employees as $employee) {
-            $recipient = $employee->getEmail();
-            $body = sprintf('Happy Birthday, dear %s!', $employee->getFirstName());
-            $subject = 'Happy Birthday!';
-            
-            $birthdayGreet = new class($employee) {
-                /**
-                 * @var string
-                 */
-                private $from;
-                
-                /**
-                 * @var string
-                 */
-                private $title;
-                
-                /**
-                 * @var string
-                 */
-                private $message;
-                
-                /**
-                 * @var string
-                 */
-                private $to;
-
-                public function __construct(Employee $employee)
-                {
-                    $this->from = 'sender@here.com';
-                    $this->title = 'Happy Birthday!';
-                    $this->message = sprintf('Happy Birthday, dear %s!', $employee->getFirstName());
-                    $this->to = $employee->getEmail();
-                }
-
-                public function from(): string
-                {
-                    return $this->from;
-                }
-
-                public function title(): string
-                {
-                    return $this->title;
-                }
-
-                public function message(): string
-                {
-                    return $this->message;
-                }
-
-                public function to(): string
-                {
-                    return $this->to;
-                }
-            };
+            $birthdayGreet = new BirthdayGreet($employee);
             
             $this->sendMessage(
                 $smtpHost,
