@@ -7,25 +7,28 @@ namespace Tests\BirthdayGreetingsKata;
 use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommand;
 use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler;
 use BirthdayGreetingsKata\Domain\BirthdayGreet;
-use BirthdayGreetingsKata\Domain\BirthdayGreetSender;
 use BirthdayGreetingsKata\Domain\BirthdayService;
 use BirthdayGreetingsKata\Domain\Employee;
-use BirthdayGreetingsKata\Domain\XDate;
 use BirthdayGreetingsKata\Infrastructure\Notification\FakeBirthdayGreetSender;
 use BirthdayGreetingsKata\Infrastructure\Persistence\InMemoryEmployeeRepository;
+use League\Tactician\CommandBus;
+use League\Tactician\Handler\CommandHandlerMiddleware;
+use League\Tactician\Handler\CommandNameExtractor\ClassNameExtractor;
+use League\Tactician\Handler\Locator\InMemoryLocator;
+use League\Tactician\Handler\MethodNameInflector\HandleInflector;
 use PHPUnit\Framework\TestCase;
 
 class AcceptanceTest extends TestCase
 {
     /**
-     * @var SendEmployeeBirthdayGreetsCommandHandler
-     */
-    private $commandHandler;
-
-    /**
      * @var FakeBirthdayGreetSender
      */
     private $birthdayGreetSender;
+
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
 
     /** @before */
     protected function prepareBirthdayGreetService(): void
@@ -35,8 +38,22 @@ class AcceptanceTest extends TestCase
         $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
 
         $this->birthdayGreetSender = new FakeBirthdayGreetSender();
+        $commandHandler = new SendEmployeeBirthdayGreetsCommandHandler(
+            new BirthdayService(
+                $employeeRepository,
+                $this->birthdayGreetSender
+            )
+        );
 
-        $this->commandHandler = new SendEmployeeBirthdayGreetsCommandHandler(new BirthdayService($employeeRepository, $this->birthdayGreetSender));
+        $this->commandBus = new CommandBus([
+            new CommandHandlerMiddleware(
+                new ClassNameExtractor(),
+                new InMemoryLocator([
+                    SendEmployeeBirthdayGreetsCommand::class => $commandHandler
+                ]),
+                new HandleInflector()
+            )
+        ]);
     }
 
     /**
@@ -44,7 +61,7 @@ class AcceptanceTest extends TestCase
      */
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
-        $this->commandHandler->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
+        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
 
         $messages = $this->messagesSent();
         $this->assertCount(1, $messages, 'message not sent?');
@@ -61,7 +78,7 @@ class AcceptanceTest extends TestCase
      */
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
-        $this->commandHandler->handle(new SendEmployeeBirthdayGreetsCommand('2008/01/01'));
+        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/01/01'));
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
     }
