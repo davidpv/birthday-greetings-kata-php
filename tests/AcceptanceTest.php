@@ -36,7 +36,7 @@ class AcceptanceTest extends TestCase
         $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
         $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
 
-        $this->service = new BirthdayService($employeeRepository);
+        $this->service = new BirthdayService($employeeRepository, new SwiftmailerBirthdayGreetSender(static::SMTP_HOST, static::SMTP_PORT));
     }
 
     /** @after */
