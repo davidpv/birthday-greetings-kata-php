@@ -33,12 +33,13 @@ final class BirthdayService
                 $birthdayGreet->from(),
                 $birthdayGreet->title(),
                 $birthdayGreet->message(),
-                $birthdayGreet->to()
+                $birthdayGreet->to(),
+                $birthdayGreet
             );
         }
     }
 
-    private function sendMessage($smtpHost, $smtpPort, $sender, $subject, $body, $recipient): void
+    private function sendMessage($smtpHost, $smtpPort, $sender, $subject, $body, $recipient, BirthdayGreet $birthdayGreet): void
     {
         // Create a mailer
         $mailer = new Swift_Mailer(
@@ -46,11 +47,11 @@ final class BirthdayService
         );
 
         // Construct the message
-        $msg = new Swift_Message($subject);
+        $msg = new Swift_Message($birthdayGreet->title());
         $msg
-            ->setFrom($sender)
-            ->setTo([$recipient])
-            ->setBody($body)
+            ->setFrom($birthdayGreet->from())
+            ->setTo([$birthdayGreet->to()])
+            ->setBody($birthdayGreet->message())
         ;
 
         // Send the message
