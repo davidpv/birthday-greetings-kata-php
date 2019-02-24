@@ -22,18 +22,8 @@ class AcceptanceTest extends TestCase
     private $birthdayGreetSender;
 
     /** @before */
-    protected function startMailhog(): void
+    protected function prepareBirthdayGreetService(): void
     {
-        $whichDockerCompose = Process::fromShellCommandline('which docker-compose');
-        $whichDockerCompose->run();
-
-        if ('' === $whichDockerCompose->getOutput()) {
-            $this->markTestSkipped('To run this test you should have docker-compose installed.');
-        }
-
-        Process::fromShellCommandline('docker stop $(docker ps -a)')->run();
-        Process::fromShellCommandline('docker-compose up -d')->run();
-        
         $employeeRepository = new InMemoryEmployeeRepository();
         $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
         $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
@@ -69,14 +59,6 @@ class AcceptanceTest extends TestCase
         };
 
         $this->service = new BirthdayService($employeeRepository, $this->birthdayGreetSender);
-    }
-
-    /** @after */
-    protected function stopMailhog(): void
-    {
-        (new Client())->delete('http://127.0.0.1:8025/api/v1/messages');
-        Process::fromShellCommandline('docker-compose stop')->run();
-        Process::fromShellCommandline('docker-compose rm -f')->run();
     }
 
     /**
