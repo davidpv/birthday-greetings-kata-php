@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\BirthdayGreetingsKata;
 
+use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler;
 use BirthdayGreetingsKata\Domain\BirthdayGreet;
 use BirthdayGreetingsKata\Domain\BirthdayGreetSender;
 use BirthdayGreetingsKata\Domain\BirthdayService;
@@ -16,9 +17,9 @@ use PHPUnit\Framework\TestCase;
 class AcceptanceTest extends TestCase
 {
     /**
-     * @var BirthdayService
+     * @var SendEmployeeBirthdayGreetsCommandHandler
      */
-    private $service;
+    private $commandHandler;
 
     /**
      * @var FakeBirthdayGreetSender
@@ -34,7 +35,7 @@ class AcceptanceTest extends TestCase
 
         $this->birthdayGreetSender = new FakeBirthdayGreetSender();
 
-        $this->service = new BirthdayService($employeeRepository, $this->birthdayGreetSender);
+        $this->commandHandler = new SendEmployeeBirthdayGreetsCommandHandler(new BirthdayService($employeeRepository, $this->birthdayGreetSender));
     }
 
     /**
@@ -42,9 +43,7 @@ class AcceptanceTest extends TestCase
      */
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
-        $this->service->sendGreetings(
-            new XDate('2008/10/08')
-        );
+        $this->commandHandler->handle('2008/10/08');
 
         $messages = $this->messagesSent();
         $this->assertCount(1, $messages, 'message not sent?');
@@ -61,9 +60,7 @@ class AcceptanceTest extends TestCase
      */
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
-        $this->service->sendGreetings(
-            new XDate('2008/01/01')
-        );
+        $this->commandHandler->handle('2008/01/01');
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
     }
