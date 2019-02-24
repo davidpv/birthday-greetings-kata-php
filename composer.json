@@ -8,7 +8,7 @@
     },
     "require-dev": {
         "ext-json": "*",
-        "phpunit/phpunit": "^7.5",
+        "phpunit/phpunit": "^8.0",
         "symfony/process": "^4.2",
         "guzzlehttp/guzzle": "^6.3"
     },
