@@ -20,7 +20,7 @@ final class BirthdayService
         $this->employeeRepository = $employeeRepository;
     }
 
-    public function sendGreetings($fileName, XDate $xDate, $smtpHost, $smtpPort): void
+    public function sendGreetings(XDate $xDate, $smtpHost, $smtpPort): void
     {
         $employees = $this->employeeRepository->byBirthday($xDate);
         
