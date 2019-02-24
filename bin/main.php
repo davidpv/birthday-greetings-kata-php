@@ -10,4 +10,4 @@ $birthdayService = new BirthdayGreetingsKata\Domain\BirthdayService(
 );
 
 $commandHandler = new BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler($birthdayService);
-$commandHandler->handle('2008/10/08');
+$commandHandler->handle(new BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommand('2008/10/08'));

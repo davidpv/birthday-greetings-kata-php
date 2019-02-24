@@ -19,8 +19,9 @@ final class SendEmployeeBirthdayGreetsCommandHandler
         $this->birthdayService = $birthdayService;
     }
 
-    public function handle(string $date): void
+    public function handle(SendEmployeeBirthdayGreetsCommand $command): void
     {
+        $date = $command->date();
         $this->birthdayService->sendGreetings(new XDate($date));
     }
 }

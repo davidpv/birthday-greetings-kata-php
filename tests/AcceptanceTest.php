@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\BirthdayGreetingsKata;
 
+use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommand;
 use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler;
 use BirthdayGreetingsKata\Domain\BirthdayGreet;
 use BirthdayGreetingsKata\Domain\BirthdayGreetSender;
@@ -43,7 +44,7 @@ class AcceptanceTest extends TestCase
      */
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
-        $this->commandHandler->handle('2008/10/08');
+        $this->commandHandler->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
 
         $messages = $this->messagesSent();
         $this->assertCount(1, $messages, 'message not sent?');
@@ -60,7 +61,7 @@ class AcceptanceTest extends TestCase
      */
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
-        $this->commandHandler->handle('2008/01/01');
+        $this->commandHandler->handle(new SendEmployeeBirthdayGreetsCommand('2008/01/01'));
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
     }
