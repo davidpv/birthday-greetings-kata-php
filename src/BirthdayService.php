@@ -27,19 +27,11 @@ final class BirthdayService
         foreach ($employees as $employee) {
             $birthdayGreet = new BirthdayGreet($employee);
             
-            $this->sendMessage(
-                $smtpHost,
-                $smtpPort, 
-                $birthdayGreet->from(),
-                $birthdayGreet->title(),
-                $birthdayGreet->message(),
-                $birthdayGreet->to(),
-                $birthdayGreet
-            );
+            $this->sendMessage($smtpHost, $smtpPort, $birthdayGreet);
         }
     }
 
-    private function sendMessage($smtpHost, $smtpPort, $sender, $subject, $body, $recipient, BirthdayGreet $birthdayGreet): void
+    private function sendMessage($smtpHost, $smtpPort, BirthdayGreet $birthdayGreet): void
     {
         // Create a mailer
         $mailer = new Swift_Mailer(
