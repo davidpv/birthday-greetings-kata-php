@@ -10,6 +10,7 @@ use Symfony\Component\Process\Process;
 
 class AcceptanceTest extends TestCase
 {
+    private const EMPLOYEE_DATA_FILEPATH = __DIR__ . '/resources/employee_data.txt';
     private const SMTP_HOST = '127.0.0.1';
     private const SMTP_PORT = 1025;
 
@@ -32,7 +33,7 @@ class AcceptanceTest extends TestCase
         Process::fromShellCommandline('docker-compose up -d')->run();
 
         $this->service = new BirthdayService(
-            new CsvEmployeeRepository(__DIR__ . '/resources/employee_data.txt')
+            new CsvEmployeeRepository(self::EMPLOYEE_DATA_FILEPATH)
         );
     }
 
@@ -50,7 +51,7 @@ class AcceptanceTest extends TestCase
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
         $this->service->sendGreetings(
-            __DIR__ . '/resources/employee_data.txt',
+            self::EMPLOYEE_DATA_FILEPATH,
             new XDate('2008/10/08'),
             static::SMTP_HOST,
             static::SMTP_PORT
@@ -72,7 +73,7 @@ class AcceptanceTest extends TestCase
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
         $this->service->sendGreetings(
-            __DIR__ . '/resources/employee_data.txt',
+            self::EMPLOYEE_DATA_FILEPATH,
             new XDate('2008/01/01'),
             static::SMTP_HOST,
             static::SMTP_PORT
