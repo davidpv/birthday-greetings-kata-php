@@ -19,6 +19,8 @@ class AcceptanceTest extends TestCase
      */
     private $service;
 
+    private $birthdayGreetSender;
+
     /** @before */
     protected function startMailhog(): void
     {
@@ -36,7 +38,37 @@ class AcceptanceTest extends TestCase
         $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
         $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
 
-        $this->service = new BirthdayService($employeeRepository, new SwiftmailerBirthdayGreetSender(static::SMTP_HOST, static::SMTP_PORT));
+        $this->birthdayGreetSender = new class implements BirthdayGreetSender
+        {
+            /** @var BirthdayGreet[] */
+            private $sentGreets = [];
+
+            public function send(BirthdayGreet $birthdayGreet): void
+            {
+                $this->sentGreets[] = $birthdayGreet;
+            }
+
+            public function sentGreets(): array
+            {
+                $sentGreets = [];
+
+                foreach ($this->sentGreets as $sentGreet) {
+                    $sentGreets[] = [
+                        'Content' => [
+                            'Body' => $sentGreet->message(),
+                            'Headers' => [
+                                'Subject' => [$sentGreet->title()],
+                                'To' => [$sentGreet->to()]
+                            ]
+                        ]
+                    ];
+                }
+
+                return $sentGreets;
+            }
+        };
+
+        $this->service = new BirthdayService($employeeRepository, $this->birthdayGreetSender);
     }
 
     /** @after */
@@ -80,6 +112,6 @@ class AcceptanceTest extends TestCase
 
     private function messagesSent(): array
     {
-        return json_decode(file_get_contents('http://127.0.0.1:8025/api/v1/messages'), true);
+        return $this->birthdayGreetSender->sentGreets();
     }
 }
