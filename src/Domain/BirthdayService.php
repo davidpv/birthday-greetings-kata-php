@@ -10,6 +10,8 @@ use Swift_SmtpTransport;
 
 final class BirthdayService
 {
+    use PublishesDomainEvents;
+    
     /**
      * @var EmployeeRepository
      */
@@ -39,6 +41,8 @@ final class BirthdayService
             $this->birthdayGreetSender->send(
                 new BirthdayGreet($employee)
             );
+
+            $this->publishThat(BirthdayGreetWasSent::now());
         }
     }
 }
