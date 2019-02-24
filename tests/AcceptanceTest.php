@@ -53,7 +53,7 @@ class AcceptanceTest extends TestCase
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
         $this->service->sendGreetings(
-            new XDate('2008/10/08'), static::SMTP_HOST, static::SMTP_PORT
+            new XDate('2008/10/08')
         );
 
         $messages = $this->messagesSent();
@@ -72,7 +72,7 @@ class AcceptanceTest extends TestCase
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
         $this->service->sendGreetings(
-            new XDate('2008/01/01'), static::SMTP_HOST, static::SMTP_PORT
+            new XDate('2008/01/01')
         );
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
