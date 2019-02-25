@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace BirthdayGreetingsKata\Domain;
 
-use Swift_Mailer;
-use Swift_Message;
-use Swift_SmtpTransport;
-
 final class BirthdayService
 {
     use PublishesDomainEvents;
