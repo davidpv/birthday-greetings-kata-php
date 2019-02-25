@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace BirthdayGreetingsKata;
+namespace Tests\BirthdayGreetingsKata;
 
+use BirthdayGreetingsKata\XDate;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
+use BirthdayGreetingsKata\BirthdayService;
 
 class AcceptanceTest extends TestCase
 {
