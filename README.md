@@ -17,8 +17,9 @@ In order to use this Kata boilerplate you need to have installed Docker and Dock
 To get started you should create a new project throught composer, based on this repository on packagist
 
 ```bash
-composer create-project theunic/birthay-greetings-kata-php birthday-greetings-kata-php
+git clone git@github.com:rigorsquad/birthday-greetings-kata-php.git
 cd birthday-greetings-kata-php
+composer install
 ```
 
 To check that all the tests are passing just execute PHPUnit

@@ -2,71 +2,44 @@
 
 declare(strict_types=1);
 
-namespace Tests\BirthdayGreetingsKata;
+namespace BirthdayGreetingsKata;
 
-use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommand;
-use BirthdayGreetingsKata\Command\SendEmployeeBirthdayGreetsCommandHandler;
-use BirthdayGreetingsKata\Domain\BirthdayGreet;
-use BirthdayGreetingsKata\Domain\BirthdayService;
-use BirthdayGreetingsKata\Domain\Employee;
-use BirthdayGreetingsKata\Infrastructure\Notification\FakeBirthdayGreetSender;
-use BirthdayGreetingsKata\Infrastructure\Persistence\InMemoryEmployeeRepository;
-use League\Tactician\CommandBus;
-use League\Tactician\Handler\CommandHandlerMiddleware;
-use League\Tactician\Handler\CommandNameExtractor\ClassNameExtractor;
-use League\Tactician\Handler\Locator\InMemoryLocator;
-use League\Tactician\Handler\MethodNameInflector\HandleInflector;
-use League\Tactician\Logger\Formatter\ClassPropertiesFormatter;
-use League\Tactician\Logger\LoggerMiddleware;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 class AcceptanceTest extends TestCase
 {
-    /**
-     * @var FakeBirthdayGreetSender
-     */
-    private $birthdayGreetSender;
+    private const SMTP_HOST = '127.0.0.1';
+    private const SMTP_PORT = 1025;
 
     /**
-     * @var CommandBus
+     * @var BirthdayService
      */
-    private $commandBus;
-
-    /**
-     * @var TestHandler
-     */
-    private $handler;
+    private $service;
 
     /** @before */
-    protected function prepareBirthdayGreetService(): void
+    protected function startMailhog(): void
     {
-        $employeeRepository = new InMemoryEmployeeRepository();
-        $employeeRepository->add(new Employee('John', 'Doe', '1982/10/08', 'john.doe@foobar.com'));
-        $employeeRepository->add(new Employee('Mary', 'Ann', '1975/03/11', 'mary.ann@foobar.com'));
+        $whichDockerCompose = Process::fromShellCommandline('which docker-compose');
+        $whichDockerCompose->run();
 
-        $this->birthdayGreetSender = new FakeBirthdayGreetSender();
-        $commandHandler = new SendEmployeeBirthdayGreetsCommandHandler(
-            new BirthdayService(
-                $employeeRepository,
-                $this->birthdayGreetSender
-            )
-        );
+        if ('' === $whichDockerCompose->getOutput()) {
+            $this->markTestSkipped('To run this test you should have docker-compose installed.');
+        }
 
-        $this->handler = new TestHandler();
-        $monolog = new Logger('test', [$this->handler]);
-        
-        $this->commandBus = new CommandBus([
-            new LoggerMiddleware(new ClassPropertiesFormatter(), $monolog),
-            new CommandHandlerMiddleware(
-                new ClassNameExtractor(),
-                new InMemoryLocator([
-                    SendEmployeeBirthdayGreetsCommand::class => $commandHandler
-                ]),
-                new HandleInflector()
-            )
-        ]);
+        Process::fromShellCommandline('docker stop $(docker ps -a)')->run();
+        Process::fromShellCommandline('docker-compose up -d')->run();
+
+        $this->service = new BirthdayService();
+    }
+
+    /** @after */
+    protected function stopMailhog(): void
+    {
+        (new Client())->delete('http://127.0.0.1:8025/api/v1/messages');
+        Process::fromShellCommandline('docker-compose stop')->run();
+        Process::fromShellCommandline('docker-compose rm -f')->run();
     }
 
     /**
@@ -74,7 +47,12 @@ class AcceptanceTest extends TestCase
      */
     public function willSendGreetings_whenItsSomebodysBirthday(): void
     {
-        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
+        $this->service->sendGreetings(
+            __DIR__ . '/resources/employee_data.txt',
+            new XDate('2008/10/08'),
+            static::SMTP_HOST,
+            static::SMTP_PORT
+        );
 
         $messages = $this->messagesSent();
         $this->assertCount(1, $messages, 'message not sent?');
@@ -91,37 +69,18 @@ class AcceptanceTest extends TestCase
      */
     public function willNotSendEmailsWhenNobodysBirthday(): void
     {
-        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/01/01'));
+        $this->service->sendGreetings(
+            __DIR__ . '/resources/employee_data.txt',
+            new XDate('2008/01/01'),
+            static::SMTP_HOST,
+            static::SMTP_PORT
+        );
 
         $this->assertCount(0, $this->messagesSent(), 'what? messages?');
     }
 
-    /** @test */
-    public function logsWhenCommandHandlerIsExecutedAndAMatchingBirthdayIsGiven(): void
-    {
-        $this->commandBus->handle(new SendEmployeeBirthdayGreetsCommand('2008/10/08'));
-
-        $records = $this->handler->getRecords();
-        $this->assertGreaterThan(0, count($records));
-    }
-
     private function messagesSent(): array
     {
-        $sentGreets = [];
-
-        /** @var BirthdayGreet $sentGreet */
-        foreach ($this->birthdayGreetSender->sentGreets() as $sentGreet) {
-            $sentGreets[] = [
-                'Content' => [
-                    'Body' => $sentGreet->message(),
-                    'Headers' => [
-                        'Subject' => [$sentGreet->title()],
-                        'To' => [$sentGreet->to()]
-                    ]
-                ]
-            ];
-        }
-
-        return $sentGreets;
+        return json_decode(file_get_contents('http://127.0.0.1:8025/api/v1/messages'), true);
     }
 }
