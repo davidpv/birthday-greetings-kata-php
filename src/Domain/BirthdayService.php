@@ -42,7 +42,7 @@ final class BirthdayService
                 new BirthdayGreet($employee)
             );
 
-            $this->publishThat(BirthdayGreetWasSent::now());
+            $this->publishThat(BirthdayGreetWasSent::now($employee));
         }
     }
 }

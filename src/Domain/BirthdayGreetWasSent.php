@@ -13,9 +13,20 @@ final class BirthdayGreetWasSent implements DomainEvent
      */
     private $occurredOn;
 
-    public function __construct()
+    /**
+     * @var string
+     */
+    private $employeeEmail;
+
+    public function __construct(string $employeeEmail)
     {
-        $this->occurredOn = new \DateTimeImmutable();
+        $this->occurredOn = new \DateTime();
+        $this->employeeEmail = $employeeEmail;
+    }
+
+    public function employeeEmail(): string
+    {
+        return $this->employeeEmail;
     }
 
     /**
@@ -26,8 +37,8 @@ final class BirthdayGreetWasSent implements DomainEvent
         return $this->occurredOn;
     }
 
-    public static function now(): self
+    public static function now(Employee $toEmployee): self
     {
-        return new static();
+        return new static($toEmployee->getEmail());
     }
 }

@@ -8,7 +8,11 @@
         "league/tactician": "^1.0",
         "league/tactician-logger": "^0.10.0",
         "monolog/monolog": "^1.24",
-        "carlosbuenosvinos/ddd": "^1.6"
+        "carlosbuenosvinos/ddd": "^1.6",
+        "ruflin/elastica": "^6.1",
+        "symfony/yaml": "^4.2",
+        "symfony/serializer": "^4.2",
+        "symfony/property-access": "^4.2"
     },
     "require-dev": {
         "ext-json": "*",
